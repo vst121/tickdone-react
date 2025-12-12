@@ -1,73 +1,131 @@
-# React + TypeScript + Vite
+# TickDone Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive Todo web application built with React, TypeScript, and Vite. Manage your tasks efficiently with deadlines, status tracking, and filtering capabilities.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- ✅ **Add Todos**: Create new tasks with optional deadlines
+- 📅 **Deadline Management**: Set and track due dates for your tasks
+- 🔄 **Status Toggle**: Mark tasks as complete or incomplete
+- 🗑️ **Delete with Confirmation**: Safely remove tasks with a confirmation dialog
+- 🔍 **Filtering**: View all, active, or completed tasks
+- ⚠️ **Overdue Detection**: Automatically highlight overdue tasks
+- 📱 **Responsive Design**: Works seamlessly on desktop and mobile devices
+- ⚡ **Fast Performance**: Built with Vite for lightning-fast development and builds
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React 19, TypeScript
+- **Build Tool**: Vite
+- **Styling**: CSS Modules
+- **Linting**: ESLint with TypeScript support
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js (version 18 or higher)
+- pnpm (recommended) or npm
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Clone the repository:
+
+   ```bash
+   git clone <repository-url>
+   cd tickdone-web
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   pnpm install
+   # or
+   npm install
+   ```
+
+3. Start the development server:
+
+   ```bash
+   pnpm dev
+   # or
+   npm run dev
+   ```
+
+4. Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+### Build for Production
+
+```bash
+pnpm build
+# or
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Preview Production Build
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm preview
+# or
+npm run preview
 ```
+
+## API Integration
+
+This frontend application expects a REST API backend running on the same domain with the following endpoints:
+
+- `GET /todos` - Fetch all todos
+- `POST /todos` - Create a new todo
+- `PUT /todos/:id` - Update a todo
+- `DELETE /todos/:id` - Delete a todo
+
+### Todo Object Structure
+
+```typescript
+interface Todo {
+  id: number;
+  taskName: string;
+  deadline: string | null; // ISO date string
+  done: boolean;
+}
+```
+
+## Project Structure
+
+```
+tickdone-web/
+├── public/
+│   └── vite.svg
+├── src/
+│   ├── assets/
+│   │   └── react.svg
+│   ├── components/
+│   │   └── Todo/
+│   │       ├── Todo.tsx
+│   │       └── Todo.css
+│   └── main.tsx
+├── package.json
+├── vite.config.ts
+└── README.md
+```
+
+## Scripts
+
+- `dev` - Start development server
+- `build` - Build for production
+- `lint` - Run ESLint
+- `preview` - Preview production build
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run linting: `pnpm lint`
+5. Commit your changes
+6. Push to the branch
+7. Open a Pull Request
+
+## License
+
+This project is private and not licensed for public use.
