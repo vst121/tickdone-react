@@ -14,6 +14,8 @@ function Todo() {
     const [newTask, setNewTask] = useState('');
     const [newDeadline, setNewDeadline] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+    const [deleteId, setDeleteId] = useState<number | null>(null);
 
     useEffect(() => {
         fetch('/todos')
@@ -64,6 +66,76 @@ function Todo() {
         }
     };
 
+  const handleDelete = (id: number) => {
+    setDeleteId(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteId) return;
+
+    setError(null);
+
+    try {
+      const response = await fetch(`/todos/${deleteId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete todo');
+      }
+      setTodos(prev => prev.filter(todo => todo.id !== deleteId));
+      setDeleteId(null);
+    } catch (err) {
+      console.error('Error deleting todo:', err);
+      setError('Failed to delete todo');
+      setDeleteId(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteId(null);
+  };
+
+
+  const handleDoneToggle = async (id: number) => {
+    const todo = todos.find(t => t.id === id);
+    if (!todo) return;
+
+    setError(null); 
+
+    const updatedDone = !todo.done;
+
+    try {
+      const response = await fetch(`/todos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...todo, done: updatedDone }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update todo');
+      }
+      const updatedTodo = await response.json();
+      setTodos(prev => prev.map(t => t.id === id ? updatedTodo : t));
+    } catch (err) {
+      console.error('Error updating todo:', err);
+      setError('Failed to update todo');
+    }
+  };
+
+
+  const isOverdue = (todo: Todo) => {
+    return todo.deadline && new Date(todo.deadline) < new Date() && !todo.done;
+  };
+
+  const filteredTodos = todos.filter(todo => {
+    if (filter === 'all') return true;
+    if (filter === 'active') return !todo.done && !isOverdue(todo);
+    if (filter === 'completed') return todo.done;
+    return true;
+  });
+
+  const itemsLeft = filteredTodos.length;
 
 
     if (loading) {
@@ -80,7 +152,6 @@ function Todo() {
             <div className="todo-container">
                 <h1>Todos</h1>
                 {error && <div className="error">{error}</div>}
-                <h2>todos.Length</h2>
 
                 <form onSubmit={handleSubmit} className="todo-form">
                 <input
@@ -98,7 +169,67 @@ function Todo() {
                 />
                 <button type="submit">Add</button>
                 </form>
+
+                {filteredTodos.length === 0 ? (
+                <div className="empty-state">
+                    <div>No todos yet!</div>
+                </div>
+                ) : (
+                <div className="todo-list">
+                    {filteredTodos.map(todo => (
+                    <div
+                        key={todo.id}
+                        className={`todo-item ${isOverdue(todo) ? 'overdue' : ''} ${todo.done ? 'done' : ''}`}
+                    >
+                        <input
+                        type="checkbox"
+                        className="todo-checkbox"
+                        checked={todo.done}
+                        onChange={() => handleDoneToggle(todo.id)}
+                        title={todo.done ? "Mark as incomplete" : "Mark as complete"}
+                        />
+                        <div className="todo-content">
+                        <div className="todo-title">{todo.taskName}</div>
+                        <div className="todo-deadline">
+                            {todo.deadline ? `📅 ${new Date(todo.deadline).toLocaleString()}` : '📅 No deadline'}
+                        </div>
+                        </div>
+                        <div className="todo-actions">
+                        <button
+                            className="delete-btn"
+                            onClick={() => handleDelete(todo.id)}
+                            title="Delete todo"
+                        >
+                            🗑️
+                        </button>
+                        </div>
+                    </div>
+                    ))}
+                </div>
+                )}
+        {todos.length > 0 && (
+          <div className="footer">
+            <span>{itemsLeft} item{itemsLeft !== 1 ? 's' : ''} left.</span>
+            <div className="filters">
+              <button onClick={() => setFilter('all')} className={filter === 'all' ? 'active' : ''}>All</button>
+              <button onClick={() => setFilter('active')} className={filter === 'active' ? 'active' : ''}>Active</button>
+              <button onClick={() => setFilter('completed')} className={filter === 'completed' ? 'active' : ''}>Completed</button>
             </div>
+          </div>
+        )}
+      </div>
+      {deleteId && (
+        <div className="confirm-dialog-overlay">
+          <div className="confirm-dialog">
+            <h3>Delete Todo</h3>
+            <p>Are you sure you want to delete this todo?</p>
+            <div className="confirm-dialog-actions">
+              <button onClick={handleCancelDelete} className="cancel-btn">Cancel</button>
+              <button onClick={handleConfirmDelete} className="confirm-btn">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
         </>
     );    
 }
