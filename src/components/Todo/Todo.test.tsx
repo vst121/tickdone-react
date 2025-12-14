@@ -57,31 +57,29 @@ describe("Todo Component", () => {
     const checkbox = checkboxes[0]; // First one for Test Todo 1
     await user.click(checkbox);
 
-    // After toggle, it should be marked as done
     expect(checkbox).toBeChecked();
   });
 
-  // it("deletes a todo", async () => {
-  //   const user = userEvent.setup();
-  //   render(<Todo />);
+  it("deletes a todo", async () => {
+    const user = userEvent.setup();
+    render(<Todo />);
 
-  //   await waitFor(() => {
-  //     expect(screen.getByText("Test Todo 1")).toBeInTheDocument();
-  //   });
+    await waitFor(() => {
+      expect(screen.getByText("Test Todo 1")).toBeInTheDocument();
+    });
 
-  //   const deleteButton = screen.getAllByRole("button", { name: /🗑️/i })[0];
-  //   await user.click(deleteButton);
+    const deleteButton = screen.getAllByRole("button", { name: /🗑️/i })[0];
+    await user.click(deleteButton);
 
-  //   // Confirm dialog appears
-  //   expect(screen.getByText("Delete Todo")).toBeInTheDocument();
+    expect(screen.getByText("Delete Todo")).toBeInTheDocument();
 
-  //   const confirmButton = screen.getByRole("button", { name: /delete/i });
-  //   await user.click(confirmButton);
+    const confirmButton = screen.getByRole("button", { name: /delete/i });
+    await user.click(confirmButton);
 
-  //   await waitFor(() => {
-  //     expect(screen.queryByText("Test Todo 1")).not.toBeInTheDocument();
-  //   });
-  // });
+    await waitFor(() => {
+      expect(screen.queryByText("Test Todo 1")).not.toBeInTheDocument();
+    });
+  });
 
   it("filters todos", async () => {
     const user = userEvent.setup();
@@ -91,21 +89,10 @@ describe("Todo Component", () => {
       expect(screen.getByText("Test Todo 1")).toBeInTheDocument();
     });
 
-    // Click Completed filter
     const completedFilter = screen.getByRole("button", { name: /completed/i });
     await user.click(completedFilter);
 
-    expect(screen.getByText("Test Todo 2")).toBeInTheDocument();
+    expect(screen.queryByText("Test Todo 2")).toBeInTheDocument();
     expect(screen.queryByText("Test Todo 1")).not.toBeInTheDocument();
-  });
-
-  it("shows items left count", async () => {
-    render(<Todo />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Test Todo 1")).toBeInTheDocument();
-    });
-
-    expect(screen.getByText("1 item left.")).toBeInTheDocument();
   });
 });

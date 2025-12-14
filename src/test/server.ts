@@ -1,7 +1,7 @@
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 
-const API_URL : string | undefined = process.env.VITE_API_URL
+const API_URL: string | undefined = process.env.VITE_API_URL
 
 interface Todo {
   id: number;

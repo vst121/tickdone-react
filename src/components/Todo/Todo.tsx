@@ -140,7 +140,8 @@ function Todo() {
     return true;
   });
 
-  const itemsLeft = filteredTodos.length;
+  const itemsLeft: number = filteredTodos.length;
+  const itemsLeftStr: string = `${itemsLeft} item${itemsLeft !== 1 ? "s" : ""} left.`;
 
   if (loading) {
     return (
@@ -217,7 +218,7 @@ function Todo() {
         {todos.length > 0 && (
           <div className="footer">
             <span>
-              {itemsLeft} item{itemsLeft !== 1 ? "s" : ""} left.
+                {itemsLeftStr}
             </span>
             <div className="filters">
               <button
