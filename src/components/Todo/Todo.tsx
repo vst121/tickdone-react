@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 
 interface Todo {
   id: number;
@@ -17,12 +17,11 @@ function Todo() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const API_URL: string = import.meta.env.VITE_API_URL;
-  console.log("API_URL:", API_URL);
 
   useEffect(() => {
     fetch(`${API_URL}/todos`)
       .then((res) => res.json())
-      .then((data) => {
+      .then((data: Todo[]) => {
         setTodos(data);
         setLoading(false);
       })
@@ -32,47 +31,50 @@ function Todo() {
         setTodos([]);
         setLoading(false);
       });
+  }, [API_URL]);
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newTask.trim()) return;
+
+      setError(null);
+
+      const newTodoData = {
+        taskName: newTask.trim(),
+        deadline: newDeadline ? new Date(newDeadline).toISOString() : null,
+      };
+
+      try {
+        const response = await fetch(`${API_URL}/todos`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newTodoData),
+        });
+        if (!response.ok) {
+          const errorData: { message?: string } = await response.json();
+          setError(errorData.message || "Failed to create todo");
+          return;
+        }
+        const createdTodo: Todo = await response.json();
+        setTodos((prev) => [...prev, createdTodo]);
+        setNewTask("");
+        setNewDeadline("");
+      } catch (err) {
+        console.error("Error creating todo:", err);
+        setError("An unexpected error occurred while creating the todo.");
+      }
+    },
+    [newTask, newDeadline, API_URL]
+  );
+
+  const handleDelete = useCallback((id: number) => {
+    setDeleteId(id);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTask.trim()) return;
-
-    setError(null);
-
-    const newTodoData = {
-      taskName: newTask.trim(),
-      deadline: newDeadline ? new Date(newDeadline).toISOString() : null,
-    };
-
-    try {
-      const response = await fetch(`${API_URL}/todos`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newTodoData),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.message || "Failed to create todo");
-        return;
-      }
-      const createdTodo = await response.json();
-      setTodos((prev) => [...prev, createdTodo]);
-      setNewTask("");
-      setNewDeadline("");
-    } catch (err) {
-      console.error("Error creating todo:", err);
-      setError("An unexpected error occurred while creating the todo.");
-    }
-  };
-
-  const handleDelete = (id: number) => {
-    setDeleteId(id);
-  };
-
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = useCallback(async () => {
     if (!deleteId) return;
 
     setError(null);
@@ -91,51 +93,58 @@ function Todo() {
       setError("Failed to delete todo");
       setDeleteId(null);
     }
-  };
+  }, [deleteId, API_URL]);
 
-  const handleCancelDelete = () => {
+  const handleCancelDelete = useCallback(() => {
     setDeleteId(null);
-  };
+  }, []);
 
-  const handleDoneToggle = async (id: number) => {
-    const todo = todos.find((t) => t.id === id);
-    if (!todo) return;
+  const handleDoneToggle = useCallback(
+    async (id: number) => {
+      const todo = todos.find((t) => t.id === id);
+      if (!todo) return;
 
-    setError(null);
+      setError(null);
 
-    const updatedDone = !todo.done;
+      const updatedDone = !todo.done;
 
-    try {
-      const response = await fetch(`${API_URL}/todos/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...todo, done: updatedDone }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to update todo");
+      try {
+        const response = await fetch(`${API_URL}/todos/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...todo, done: updatedDone }),
+        });
+        if (!response.ok) {
+          throw new Error("Failed to update todo");
+        }
+        const updatedTodo: Todo = await response.json();
+        setTodos((prev) => prev.map((t) => (t.id === id ? updatedTodo : t)));
+      } catch (err) {
+        console.error("Error updating todo:", err);
+        setError("Failed to update todo");
       }
-      const updatedTodo = await response.json();
-      setTodos((prev) => prev.map((t) => (t.id === id ? updatedTodo : t)));
-    } catch (err) {
-      console.error("Error updating todo:", err);
-      setError("Failed to update todo");
-    }
-  };
+    },
+    [todos, API_URL]
+  );
 
-  const isOverdue = (todo: Todo) => {
+  const isOverdue = useCallback((todo: Todo) => {
     return todo.deadline && new Date(todo.deadline) < new Date() && !todo.done;
-  };
+  }, []);
 
-  const filteredTodos = todos.filter((todo) => {
-    if (filter === "all") return true;
-    if (filter === "active") return !todo.done && !isOverdue(todo);
-    if (filter === "completed") return todo.done;
-    return true;
-  });
+  const filteredTodos = useMemo(() => {
+    return todos.filter((todo) => {
+      if (filter === "all") return true;
+      if (filter === "active") return !todo.done && !isOverdue(todo);
+      if (filter === "completed") return todo.done;
+      return true;
+    });
+  }, [todos, filter, isOverdue]);
 
-  const itemsLeft = filteredTodos.length;
+  const itemsLeft = useMemo(() => {
+    return todos.filter((todo) => !todo.done && !isOverdue(todo)).length;
+  }, [todos, isOverdue]);
 
   if (loading) {
     return (
