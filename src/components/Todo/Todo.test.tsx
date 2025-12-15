@@ -54,7 +54,7 @@ describe("Todo Component", () => {
     const checkboxes = screen.getAllByRole("checkbox", {
       name: /mark as complete/i,
     });
-    const checkbox = checkboxes[0]; // First one for Test Todo 1
+    const checkbox = checkboxes[0]; 
     await user.click(checkbox);
 
     expect(checkbox).toBeChecked();

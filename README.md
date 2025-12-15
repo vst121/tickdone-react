@@ -1,15 +1,15 @@
 # TickDone Web
 
-A modern, responsive Todo web application built with React, TypeScript, and Vite. Manage your tasks efficiently with deadlines, status tracking, and filtering capabilities.
+A modern, responsive Todo web application built with React, TypeScript, and Vite. Manage your todos efficiently with deadlines, status tracking, and filtering capabilities.
 
 ## Features
 
-- ✅ **Add Todos**: Create new tasks with optional deadlines
-- 📅 **Deadline Management**: Set and track due dates for your tasks
-- 🔄 **Status Toggle**: Mark tasks as complete or incomplete
-- 🗑️ **Delete with Confirmation**: Safely remove tasks with a confirmation dialog
-- 🔍 **Filtering**: View all, active, or completed tasks
-- ⚠️ **Overdue Detection**: Automatically highlight overdue tasks
+- ✅ **Add Todos**: Create new todos with optional deadlines
+- 📅 **Deadline Management**: Set and track due dates for your todos
+- 🔄 **Status Toggle**: Mark todos as complete or incomplete
+- 🗑️ **Delete with Confirmation**: Safely remove todos with a confirmation dialog
+- 🔍 **Filtering**: View all, active, or completed todos
+- ⚠️ **Overdue Detection**: Automatically highlight overdue todos
 - 📱 **Responsive Design**: Works seamlessly on desktop and mobile devices
 - ⚡ **Fast Performance**: Built with Vite for lightning-fast development and builds
 
@@ -52,7 +52,7 @@ A modern, responsive Todo web application built with React, TypeScript, and Vite
    npm run dev
    ```
 
-4. Open [http://localhost:5173](http://localhost:5173) in your browser.
+4. Open [http://localhost:4000](http://localhost:4000) in your browser.
 
 ### Build for Production
 
@@ -95,17 +95,21 @@ interface Todo {
 ```
 tickdone-web/
 ├── public/
-│   └── vite.svg
+│   └── favicon.svg
 ├── src/
 │   ├── assets/
-│   │   └── react.svg
 │   ├── components/
 │   │   └── Todo/
-│   │       ├── Todo.tsx
-│   │       └── Todo.css
+│   │       ├── Todo.css
+│   │       ├── Todo.test.tsx
+│   │       └── Todo.tsx
+│   ├── test/
+│   │   ├── server.ts
+│   │   └── setup.ts
 │   └── main.tsx
 ├── package.json
 ├── vite.config.ts
+├── index.html
 └── README.md
 ```
 
@@ -134,4 +138,4 @@ This project is private and not licensed for public use.
 
 ## License
 
-This project is private and not licensed for public use.
+This project is licensed under the MIT License.
